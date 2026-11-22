@@ -10,6 +10,9 @@ import { setFlagsFromString } from 'node:v8';
 // V8's incremental marking off, set before solve.js is imported so all of its work runs under it (the rules: the house
 // baseline runs with --no-incremental-marking, and an entry may tune V8's flags too).
 setFlagsFromString('--no-incremental-marking');
+// One cold pass over each file: TurboFan's compile costs more CPU than it saves here (measured on the practice set:
+// about 280 ms of process CPU with it, about 200 ms without), so keep to the baseline tiers (Ignition, Sparkplug, Maglev).
+setFlagsFromString('--no-opt');
 
 /** solve.js, imported by its URL (a .js module carries no types) and typed by its contract. */
 const { run } = (await import(new URL('./solve.js', import.meta.url).href)) as { run: (input: unknown) => unknown };
